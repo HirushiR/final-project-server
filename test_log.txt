@@ -1,0 +1,339 @@
+Starting API Tests (JWT) - Sun May  4 10:37:37 UTC 2025
+
+=== STEP: Check Root Endpoint ===
+COMMAND: curl -s http://localhost:12345/
+--- Output ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 82
+ETag: W/"52-7ZFWiwMpKY6/WDXuEZAZb/Gb1e4"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"message":"OCR/Chat Processing Service API is running.","status":"OK (JWT Auth)"}
+--- End Output ---
+Expected Status: 200 | Actual Status: 200
+RESULT: SUCCESS
+
+=== STEP: Signup New User (testuser1746355057) ===
+COMMAND: curl -s -X POST -H Content-Type:\ application/x-www-form-urlencoded -d username=testuser1746355057\&password=testpassword http://localhost:12345/signup
+--- Output ---
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 290
+ETag: W/"122-YZELNadzAcD3B2ybkgnf1sI7QlM"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"success":true,"message":"Signup successful.","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw","user":{"id":15,"username":"testuser1746355057"}}[Token Extracted]
+
+--- End Output ---
+Expected Status: 201 | Actual Status: 201
+RESULT: SUCCESS
+Current Token (first 10 chars): eyJhbGciOi...
+
+=== STEP: Check Auth Status (Access Protected Route) ===
+COMMAND: curl -s -H Authorization:\ Bearer\ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw http://localhost:12345/api/ocr/result/invalid-job-id-for-auth-check
+--- Output ---
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 45
+ETag: W/"2d-jDlb9w7aX9JMizg11oBMqVSRReY"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"error":"Invalid or missing Job ID format."}
+--- End Output ---
+Expected Status: 400 | Actual Status: 400
+RESULT: SUCCESS
+
+=== STEP: Access Another Protected Route (Preprocess - Auth Check) ===
+COMMAND: curl -s -X POST -H Authorization:\ Bearer\ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw -F file=@invalid-file-for-auth-check.txt http://localhost:12345/api/preprocess
+--- Output ---
+[No Headers Received]
+[No Body Received]
+
+--- End Output ---
+Expected Status: 400 | Actual Status: 000
+RESULT: FAILURE (Status mismatch or curl error)
+Hint: Status 000 indicates connection error.
+Note: Ignoring failure for invalid file, checking auth only
+
+=== STEP: Logout (Client-Side Simulation) ===
+AUTH_TOKEN cleared.
+RESULT: SUCCESS
+
+=== STEP: Check Auth Status (No Token) ===
+COMMAND: curl -s http://localhost:12345/api/ocr/result/invalid-job-id-for-auth-check
+--- Output ---
+HTTP/1.1 401 Unauthorized
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 47
+ETag: W/"2f-761CvN6wlkIG1canHRnOD1JbHyY"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"error":"Authentication Error: No auth token"}
+--- End Output ---
+Expected Status: 401 | Actual Status: 401
+RESULT: SUCCESS
+
+=== STEP: Login User (testuser1746355057) ===
+COMMAND: curl -s -X POST -H Content-Type:\ application/x-www-form-urlencoded -d username=testuser1746355057\&password=testpassword http://localhost:12345/login/password
+--- Output ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 288
+ETag: W/"120-G6mwEJP3ZdPWf8kQfaTyWykHNyo"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"success":true,"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw","user":{"id":15,"username":"testuser1746355057"}}[Token Extracted]
+
+--- End Output ---
+Expected Status: 200 | Actual Status: 200
+RESULT: SUCCESS
+Current Token (first 10 chars): eyJhbGciOi...
+
+=== STEP: Check Auth Status (After Login) ===
+COMMAND: curl -s -H Authorization:\ Bearer\ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw http://localhost:12345/api/ocr/result/invalid-job-id-for-auth-check
+--- Output ---
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 45
+ETag: W/"2d-jDlb9w7aX9JMizg11oBMqVSRReY"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"error":"Invalid or missing Job ID format."}
+--- End Output ---
+Expected Status: 400 | Actual Status: 400
+RESULT: SUCCESS
+
+=== STEP: Attempt Duplicate Signup (testuser1746355057) ===
+COMMAND: curl -s -X POST -H Content-Type:\ application/x-www-form-urlencoded -d username=testuser1746355057\&password=testpassword http://localhost:12345/signup
+--- Output ---
+HTTP/1.1 409 Conflict
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 53
+ETag: W/"35-XyPvPt42MdxSY7FlcXVSvkrxmGQ"
+Date: Sun, 04 May 2025 10:37:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"success":false,"message":"Username already taken."}
+--- End Output ---
+Expected Status: 409 | Actual Status: 409
+RESULT: SUCCESS
+
+=== STEP: Test Preprocess and OCR Flow (JWT) ===
+Uploading sample.pdf for preprocessing...
+
+=== STEP: Preprocess File Upload ===
+COMMAND: curl -s -X POST -H Authorization:\ Bearer\ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJ1c2VybmFtZSI6InRlc3R1c2VyMTc0NjM1NTA1NyIsImlhdCI6MTc0NjM1NTA1NywiZXhwIjoxNzQ2NDQxNDU3fQ.O8Vu0OV5shUg6kmY6HjzjCCWM3R2pGgv0jqby2NIqJw -F file=@sample.pdf http://localhost:12345/api/preprocess
+--- Output ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 137
+ETag: W/"89-JNWdUCpe++QeOybioWudQcCKgko"
+Date: Sun, 04 May 2025 10:37:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+{"message":"File preprocessed successfully.","imageFilename":"temp.png","absoluteImagePath":"/workspace/projects/rn-infra/data/temp.png"}
+--- End Output ---
+Expected Status: 200 | Actual Status: 200
+RESULT: SUCCESS
+Starting OCR Job...
+--- OCR Start Response Body ---
+{"message":"OCR process accepted and started.","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e","statusUrl":"/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Start Response Body ---
+[DEBUG] Extracted Job ID: 3719cb1e-54d5-433d-836e-03caf4c2aa1e
+[DEBUG] Extracted Status URL Path: /api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+OCR Job ID: 3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling OCR Status URL: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e (waiting indefinitely...)
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 1...
+--- OCR Poll Response (Attempt 1) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 2...
+--- OCR Poll Response (Attempt 2) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 3...
+--- OCR Poll Response (Attempt 3) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 4...
+--- OCR Poll Response (Attempt 4) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 5...
+--- OCR Poll Response (Attempt 5) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 6...
+--- OCR Poll Response (Attempt 6) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 7...
+--- OCR Poll Response (Attempt 7) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 8...
+--- OCR Poll Response (Attempt 8) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 9...
+--- OCR Poll Response (Attempt 9) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 10...
+--- OCR Poll Response (Attempt 10) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 11...
+--- OCR Poll Response (Attempt 11) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 12...
+--- OCR Poll Response (Attempt 12) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 13...
+--- OCR Poll Response (Attempt 13) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 14...
+--- OCR Poll Response (Attempt 14) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 15...
+--- OCR Poll Response (Attempt 15) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 16...
+--- OCR Poll Response (Attempt 16) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 17...
+--- OCR Poll Response (Attempt 17) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 18...
+--- OCR Poll Response (Attempt 18) ---
+Status Code: 202
+Body:
+{"status":"pending","jobId":"3719cb1e-54d5-433d-836e-03caf4c2aa1e"}
+--- End OCR Poll Response ---
+Current OCR Status from body: pending
+[DEBUG] Polling URL in loop: http://localhost:12345/api/ocr/result/3719cb1e-54d5-433d-836e-03caf4c2aa1e
+Polling attempt 19...
+--- OCR Poll Response (Attempt 19) ---
+Status Code: 200
+Body:
+{...}
+--- End OCR Poll Response ---
+Current OCR Status from body: completed
+OCR RESULT: SUCCESS (Completed)
+
+=== STEP: All Tests Completed ===

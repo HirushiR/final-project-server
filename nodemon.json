@@ -1,0 +1,21 @@
+{
+  "verbose": true,
+  "watch": ["server.mjs", "routes/", "middleware/", "db/", "utils/", "config/"],
+  "ext": "mjs,js,json",
+  "ignoreRoot": [".git"],
+  "ignore": [
+    "node_modules/**",
+    "uploads/**",
+    "data/**",
+    "ocr_results/**",
+    "cookies.txt",
+    "test_log.txt",
+    "nodemon.json",
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml"
+  ],
+  "exec": "node --trace-warnings server.mjs",
+  "signal": "SIGTERM",
+  "delay": "1500"
+}
